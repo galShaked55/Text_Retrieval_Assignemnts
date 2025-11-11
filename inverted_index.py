@@ -26,11 +26,9 @@ class InvertedIndex:
         """
         Creates a new empty inverted index based on the input data_path
         :param data_path_str: String representing the input data directory path, if not a directory, creation will fail.
-        :param output_path_str: String representing the output path to write the results text file into.
-        If not provided, './out/Part_2.txt' will be the output file location.
         """
         self.term_docs_dict = defaultdict(PostingList) # The data structure to populate as the inverted index.\
-        self.output_p_obj = Path(output_path_str) #TODO: Not sure we should handle it here.
+
 
         data_p = Path(data_path_str)
         if not data_p.exists():
@@ -192,8 +190,139 @@ class Document:
         return f"Document(doc_id={self.doc_id}, doc_idx={self.doc_idx})"
 
 
+def test_inverted_index_basic():
+    """Test basic InvertedIndex functionality with sample documents."""
+    print("="*60)
+    print("TESTING INVERTED INDEX - BASIC FUNCTIONALITY")
+    print("="*60)
+
+    # Test Document class
+    print("\nTEST 1: Document Creation")
+    print("-"*60)
+    Document.ID = 0  # Reset counter for testing
+    doc1 = Document("AP890101-0001")
+    doc2 = Document("AP890101-0002")
+    doc3 = Document("AP890101-0003")
+
+    print(f"doc1: {doc1}")
+    print(f"doc2: {doc2}")
+    print(f"doc3: {doc3}")
+    print(f"Total documents created: {Document.ID}")
+
+    # Test PostingList class
+    print("\nTEST 2: PostingList Creation and Append")
+    print("-"*60)
+    posting_list = PostingList()
+    print(f"Empty posting list: {posting_list}")
+    print(f"freq: {posting_list.freq}")
+
+    posting_list.append(doc1)
+    posting_list.append(doc2)
+    posting_list.append(doc3)
+    print(f"\nAfter adding 3 documents: {posting_list}")
+    print(f"freq: {posting_list.freq}")
+    print(f"get_last_doc(): {posting_list.get_last_doc()}")
+
+    # Test basic inverted index structure
+    print("\nTEST 3: Basic Inverted Index Structure")
+    print("-"*60)
+    term_docs_dict = defaultdict(PostingList)
+
+    # Simulate adding terms
+    term_docs_dict['cat'].append(doc1)
+    term_docs_dict['cat'].append(doc2)
+    term_docs_dict['dog'].append(doc2)
+    term_docs_dict['dog'].append(doc3)
+    term_docs_dict['mouse'].append(doc1)
+
+    print(f"Index contains {len(term_docs_dict)} terms")
+    for term, postings in term_docs_dict.items():
+        doc_ids = [doc.doc_id for doc in postings]
+        print(f"  '{term}' (freq={postings.freq}): {doc_ids}")
+
+    print("\n" + "="*60)
+    print("BASIC TESTS COMPLETED!")
+    print("="*60 + "\n")
+
+
+def test_inverted_index_on_data(data_path, max_files=None):
+    """Test InvertedIndex on actual data with optional file limit."""
+    print("="*60)
+    print("TESTING INVERTED INDEX - ON DATA")
+    print("="*60)
+    print(f"Data path: {data_path}")
+
+    # Reset document counter
+    Document.ID = 0
+
+    print("\nCreating inverted index...")
+    ii = InvertedIndex(data_path)
+
+    if max_files:
+        print(f"Processing first {max_files} files only...", flush=True)
+        # Temporarily store the original rglob method
+        file_count = 0
+        for entry in ii.data_p_obj.rglob('AP*'):
+            if entry.is_file():
+                if file_count >= max_files:
+                    break
+                ii.process_file(entry)
+                file_count += 1
+                if file_count % 50 == 0:
+                    print(f"  Processed {file_count} files...", flush=True)
+    else:
+        print("Processing all files...")
+        ii.populate(verbose=True)
+
+    # Print statistics
+    print(f"\n{'='*60}")
+    print("STATISTICS")
+    print(f"{'='*60}")
+    print(f"Total documents processed: {Document.ID}")
+    print(f"Total unique terms: {len(ii.term_docs_dict)}")
+
+    # Show sample terms
+    print(f"\nSample terms (first 10):")
+    for i, (term, postings) in enumerate(list(ii.term_docs_dict.items())[:10]):
+        doc_ids = [doc.doc_id for doc in postings[:3]]  # Show first 3 docs
+        more = f" ... +{postings.freq - 3} more" if postings.freq > 3 else ""
+        print(f"  '{term}' (freq={postings.freq}): {doc_ids}{more}")
+
+    # Find some common terms
+    print(f"\nLooking for common terms:")
+    common_terms = ['the', 'a', 'an', 'of', 'in', 'to', 'and', 'is', 'was', 'for']
+    for term in common_terms:
+        if term in ii.term_docs_dict:
+            freq = ii.term_docs_dict[term].freq
+            print(f"  '{term}': found in {freq} documents")
+
+    print("\n" + "="*60)
+    print("DATA TESTS COMPLETED!")
+    print("="*60 + "\n")
+
+    return ii
+
+
 if __name__ == '__main__':
-    # Tests:
+    import sys
+
+    # Check if user wants to run tests
+    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+        # Run basic tests first
+        test_inverted_index_basic()
+
+        # Ask user if they want to test on actual data
+        print("Do you want to test on actual data? (y/n)")
+        # For automation, check if there's a 3rd argument
+        if len(sys.argv) > 2:
+            data_path = sys.argv[2]
+            max_files = int(sys.argv[3]) if len(sys.argv) > 3 else None
+            test_inverted_index_on_data(data_path, max_files)
+
+        sys.exit(0)
+
+
+'''# Tests:
     ## Small test:
     data_path = 'C:/Users/User/TextRetreival/Assignment1/small_test_data'
     #small_test_ii = InvertedIndex(data_path)
@@ -212,16 +341,11 @@ if __name__ == '__main__':
     # print(f"Correct # of docs = 297")
 
     # Example of usage:
-    data_path = 'C:/Users/User/TextRetreival/Assignment1/data-20251108'
+    data_path = 'C:/Users/eynavoz/Documents/courses/ms_first_year/text_retreival/Text_Retrieval_Assignemnts/data/AP_Coll_Parsed_1'
     ii = InvertedIndex(data_path) # Create a new empty Inverted Index which will be based on the data_path collection
     ii.populate(verbose=True) # populate the inverted index | verbose true if you want printings about the pace of progress
-    print(f"Inverted index:")
-    ii.print_index() # Print the inverted index terms and postings list
     print(f"Documents counter = {Document.ID}")
-
-
-
-
+'''
 
 
 
