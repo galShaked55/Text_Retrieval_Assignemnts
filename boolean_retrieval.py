@@ -364,6 +364,7 @@ if __name__ == '__main__':
     try:
         with open(queries_file, 'r') as f:
             queries = [line.strip() for line in f if line.strip()]
+            print(queries)
     except FileNotFoundError:
         print(f"ERROR: Queries file not found: {queries_file}")
         exit(1)
@@ -382,9 +383,9 @@ if __name__ == '__main__':
 
             # Extract doc_id names from Document objects
             doc_ids = [doc.doc_id for doc in result_docs]
-
+            doc_ids_sorted = sorted(doc_ids)
             # Join with spaces
-            result_line = ' '.join(doc_ids)
+            result_line = ' '.join(doc_ids_sorted)
             results.append(result_line)
 
             print(f"  Found {len(doc_ids)} matching documents")
