@@ -1,0 +1,26 @@
+1. 'the', 'of', 'in', 'a', 'and', 'to', 'for', 'said', 'on', 'that'
+
+2. 'memphia', 'platinumhaired', 'platinumsellers', 'fiverecord', 'conomination', 'specifially', 'indescretion', 'phofo', 'whitewigged', 'metroiii'
+
+3. The different charactersistics of the above 2 sets:
+    - The high frequency set contains stop words/function words with low semantic value. 
+    - The lowest frequency set seem to contain errors (like 'phopo' instead of 'photo'), or compound words - terms that combines two distinct words (like 'platinumhaired', 'platinumsellers'). 
+
+4. The 2 terms are:  'platinumhaired', 'platinumsellers'
+The high frequency set contains stop words/function words with low semantic value.
+The lowest frequency set seems to contain errors (like 'phopo' instead of 'photo') or compound words - terms that combine two distinct words (like 'platinumhaired', 'platinumsellers').
+
+4. The 2 terms are: 'platinumhaired', 'platinumsellers'
+Both of these terms were also in the top 10 lowest term frequency, meaning they both appear only in one document -doc ID: 'AP880222-0003'.
+These compound words appear in a document written in an artistic style characterized by unconventional vocabulary and extensive use of compound word formations.
+Our idea was was that documents containing such rare terms would likely contain additional rare terms. For example: 
+documents with numerous spelling errors naturally generate many unique terms, or documents written in distinctive stylistic voices employ unusual vocabulary.
+So we took the set of lowest frequency terms and looked at the doc IDs. We found out that 4 terms from this set are actually from the same document:
+1. 'platinumhaired' - appears in 1 document(s)
+    Documents: ['AP880222-0003']
+2. 'platinumsellers' - appears in 1 document(s)
+    Documents: ['AP880222-0003']
+3. 'fiverecord' - appears in 1 document(s)
+    Documents: ['AP880222-0003']
+4. 'conomination' - appears in 1 document(s)
+    Documents: ['AP880222-0003'] 
